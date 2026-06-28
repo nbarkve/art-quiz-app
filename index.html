@@ -252,6 +252,75 @@
             margin-bottom: 16px;
         }
 
+        /* Research Suggestions */
+        .research-section {
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 2px;
+            margin-bottom: 40px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+
+        .research-intro {
+            font-size: 15px;
+            color: #666;
+            margin-bottom: 32px;
+            line-height: 1.6;
+        }
+
+        .suggestions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+        }
+
+        .suggestion-card {
+            padding: 24px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+            border: 1px solid #f0f0f0;
+        }
+
+        .suggestion-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 12px;
+        }
+
+        .suggestion-description {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 16px;
+        }
+
+        .artists-list {
+            margin-top: 16px;
+        }
+
+        .artists-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #999;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .artists-ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .artist-item {
+            font-size: 13px;
+            color: #333;
+            margin-bottom: 4px;
+            padding-left: 12px;
+        }
+
+        /* Recommendations */
         .recommendations-section {
             margin-bottom: 40px;
         }
@@ -269,10 +338,6 @@
             box-shadow: 0 1px 3px rgba(0,0,0,0.04);
             transition: box-shadow 0.2s;
             cursor: pointer;
-        }
-
-        .recommendation-card:hover {
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
         .recommendation-image {
@@ -350,6 +415,14 @@
                 padding: 20px;
             }
 
+            .research-section {
+                padding: 20px;
+            }
+
+            .suggestions-grid {
+                grid-template-columns: 1fr;
+            }
+
             .recommendation-grid {
                 grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
                 gap: 15px;
@@ -371,6 +444,7 @@
                 this.quizComplete = false;
                 this.recommendations = [];
                 this.analysis = null;
+                this.researchSuggestions = [];
 
                 this.QUIZ_SIZE = 15;
                 this.RECOMMENDATION_COUNT = 10;
@@ -431,6 +505,7 @@
                 const patterns = this.analyzePatterns(this.likedArtworks);
                 this.recommendations = this.generateRecommendations(patterns, this.likedArtworks);
                 this.analysis = this.createAnalysis(patterns, this.likedArtworks);
+                this.researchSuggestions = this.generateResearchSuggestions(patterns, this.likedArtworks);
                 
                 this.quizComplete = true;
                 this.renderResults();
@@ -550,6 +625,86 @@
                 return insights;
             }
 
+            generateResearchSuggestions(patterns, liked) {
+                const suggestions = [];
+
+                const topCentury = Object.entries(patterns.centuries)
+                    .sort((a, b) => b[1] - a[1])[0];
+
+                if (topCentury) {
+                    const century = parseInt(topCentury[0]);
+                    
+                    if (century >= 1900 && century < 1950) {
+                        suggestions.push({
+                            title: "Modernist Movements",
+                            description: "Explore early 20th-century movements like Cubism, Futurism, and Constructivism—the revolutionary artists who reimagined visual language.",
+                            artists: ["Pablo Picasso", "Wassily Kandinsky", "Joan Miró", "El Lissitzky"]
+                        });
+                        
+                        suggestions.push({
+                            title: "Surrealism",
+                            description: "Dive into the dreamlike, subconscious imagery of Surrealism—art that challenges rational perception.",
+                            artists: ["Salvador Dalí", "Max Ernst", "René Magritte", "André Breton"]
+                        });
+                    }
+                    
+                    if (century >= 1800 && century < 1900) {
+                        suggestions.push({
+                            title: "Impressionism & Post-Impressionism",
+                            description: "Discover how artists broke from academic tradition to capture light, color, and emotion in radical new ways.",
+                            artists: ["Claude Monet", "Vincent van Gogh", "Paul Cézanne", "Georges Seurat"]
+                        });
+                        
+                        suggestions.push({
+                            title: "Realism & Naturalism",
+                            description: "Explore artists who rejected romanticism to depict everyday life and social truths with unflinching honesty.",
+                            artists: ["Gustave Courbet", "Jean-François Millet", "Édouard Manet", "Thomas Eakins"]
+                        });
+                    }
+
+                    if (century >= 1700 && century < 1800) {
+                        suggestions.push({
+                            title: "Neoclassicism & Romanticism",
+                            description: "Study the tension between rational order and emotional expression in the art of revolution and transformation.",
+                            artists: ["Jacques-Louis David", "Jean-Auguste-Dominique Ingres", "Caspar David Friedrich", "Francisco Goya"]
+                        });
+                    }
+                }
+
+                const titleContent = liked.map(a => a.title?.toLowerCase() || '').join(' ');
+                
+                if (titleContent.includes('portrait')) {
+                    suggestions.push({
+                        title: "Portraiture Across Eras",
+                        description: "Study how different periods and artists approached depicting human identity, emotion, and power.",
+                        artists: ["Rembrandt", "Elisabeth Vigée Le Brun", "Francisco Goya", "Paul Klee"]
+                    });
+                }
+
+                if (titleContent.includes('landscape') || titleContent.includes('nature')) {
+                    suggestions.push({
+                        title: "Landscape & Nature",
+                        description: "Explore how artists have interpreted the natural world—from literal representation to abstract interpretation.",
+                        artists: ["J.M.W. Turner", "Caspar David Friedrich", "Paul Cézanne", "Anselm Kiefer"]
+                    });
+                }
+
+                if (titleContent.includes('abstract') || titleContent.includes('composition')) {
+                    suggestions.push({
+                        title: "Abstract & Non-Representational Art",
+                        description: "Investigate how artists moved beyond the visual world to explore pure form, color, and composition.",
+                        artists: ["Wassily Kandinsky", "Piet Mondrian", "Mark Rothko", "Helen Frankenthaler"]
+                    });
+                }
+
+                const seen = new Set();
+                return suggestions.filter(s => {
+                    if (seen.has(s.title)) return false;
+                    seen.add(s.title);
+                    return true;
+                }).slice(0, 4);
+            }
+
             renderQuiz() {
                 const progress = ((this.currentQuizIndex + 1) / this.quizSet.length) * 100;
                 const art = this.quizSet[this.currentQuizIndex];
@@ -593,12 +748,37 @@
             }
 
             renderResults() {
+                let researchHtml = '';
+                if (this.researchSuggestions.length > 0) {
+                    researchHtml = `
+                        <div class="research-section">
+                            <h2 class="section-title">Suggested Research</h2>
+                            <p class="research-intro">Based on your taste, explore these movements and artists to deepen your understanding:</p>
+                            <div class="suggestions-grid">
+                                ${this.researchSuggestions.map(suggestion => `
+                                    <div class="suggestion-card">
+                                        <h3 class="suggestion-title">${suggestion.title}</h3>
+                                        <p class="suggestion-description">${suggestion.description}</p>
+                                        <div class="artists-list">
+                                            <p class="artists-label">Key Artists:</p>
+                                            <ul class="artists-ul">
+                                                ${suggestion.artists.map(artist => `
+                                                    <li class="artist-item">${artist}</li>
+                                                `).join('')}
+                                            </ul>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+
                 let recommendationsHtml = '';
-                
                 if (this.recommendations.length > 0) {
                     recommendationsHtml = `
                         <div class="recommendations-section">
-                            <h2 class="section-title">We Think You'll Love These</h2>
+                            <h2 class="section-title">Artworks We Recommend</h2>
                             <div class="recommendation-grid">
                                 ${this.recommendations.map(art => `
                                     <div class="recommendation-card">
@@ -653,6 +833,8 @@
                             ${insightsHtml}
                         </div>
 
+                        ${researchHtml}
+
                         ${recommendationsHtml}
 
                         <div class="restart-container">
@@ -669,12 +851,12 @@
                 this.quizComplete = false;
                 this.recommendations = [];
                 this.analysis = null;
+                this.researchSuggestions = [];
                 this.generateQuizSet();
                 this.renderQuiz();
             }
         }
 
-        // Initialize
         window.app = new ArtTasteQuiz();
     </script>
 </body>
