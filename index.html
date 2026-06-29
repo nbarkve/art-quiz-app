@@ -496,19 +496,33 @@
             }
 
             completeQuiz() {
+                console.log('completeQuiz called, liked count:', this.likedArtworks.length);
+                
                 if (this.likedArtworks.length === 0) {
                     this.quizComplete = true;
                     this.renderResults();
                     return;
                 }
 
-                const patterns = this.analyzePatterns(this.likedArtworks);
-                this.recommendations = this.generateRecommendations(patterns, this.likedArtworks);
-                this.analysis = this.createAnalysis(patterns, this.likedArtworks);
-                this.researchSuggestions = this.generateResearchSuggestions(patterns, this.likedArtworks);
-                
-                this.quizComplete = true;
-                this.renderResults();
+                try {
+                    const patterns = this.analyzePatterns(this.likedArtworks);
+                    console.log('Patterns analyzed:', patterns);
+                    
+                    this.recommendations = this.generateRecommendations(patterns, this.likedArtworks);
+                    console.log('Recommendations generated:', this.recommendations.length);
+                    
+                    this.analysis = this.createAnalysis(patterns, this.likedArtworks);
+                    console.log('Analysis created:', this.analysis);
+                    
+                    this.researchSuggestions = this.generateResearchSuggestions(patterns, this.likedArtworks);
+                    console.log('Research suggestions generated:', this.researchSuggestions.length);
+                    
+                    this.quizComplete = true;
+                    this.renderResults();
+                } catch (error) {
+                    console.error('Error in completeQuiz:', error);
+                    alert('Error processing results: ' + error.message);
+                }
             }
 
 
