@@ -495,6 +495,212 @@
                 }
             }
 
+            analyzePatterns(liked) {
+                const patterns = {
+                    artists: {},
+                    centuries: {},
+                    keywords: {}
+                };
+
+                liked.forEach(art => {
+                    if (art.artist) {
+                        patterns.artists[art.artist] = (patterns.artists[art.artist] || 0) + 1;
+                    }
+
+                    if (art.year) {
+                        const yearMatch = art.year.match(/(\d{4})/);
+                        if (yearMatch) {
+                            const year = parseInt(yearMatch[1]);
+                            const century = Math.floor(year / 100) + 1;
+                            patterns.centuries[century] = (patterns.centuries[century] || 0) + 1;
+                        }
+                    }
+
+                    if (art.title) {
+                        const words = art.title.toLowerCase().split(/[\s\-().,]/);
+                        words.forEach(word => {
+                            if (word.length > 3 && !['the', 'and', 'with', 'from'].includes(word)) {
+                                patterns.keywords[word] = (patterns.keywords[word] || 0) + 1;
+                            }
+                        });
+                    }
+                });
+
+                return patterns;
+            }
+
+            generateRecommendations(patterns, liked) {
+                const likedIds = new Set(liked.map(a => a.id));
+                const scored = this.dataset.artworks
+                    .filter(art => !likedIds.has(art.id))
+                    .map(art => {
+                        let score = 0;
+
+                        if (art.artist && patterns.artists[art.artist]) {
+                            score += 50;
+                        }
+
+                        if (art.year) {
+                            const yearMatch = art.year.match(/(\d{4})/);
+                            if (yearMatch) {
+                                const year = parseInt(yearMatch[1]);
+                                const century = Math.floor(year / 100) + 1;
+                                if (patterns.centuries[century]) {
+                                    score += 30;
+                                }
+                            }
+                        }
+
+                        if (art.title) {
+                            const words = art.title.toLowerCase().split(/[\s\-().,]/);
+                            words.forEach(word => {
+                                if (patterns.keywords[word]) {
+                                    score += 10;
+                                }
+                            });
+                        }
+
+                        return { art, score };
+                    })
+                    .sort((a, b) => b.score - a.score)
+                    .slice(0, this.RECOMMENDATION_COUNT)
+                    .map(item => item.art);
+
+                return scored;
+            }
+
+            createAnalysis(patterns, liked) {
+                const topArtists = Object.entries(patterns.artists)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 3)
+                    .map(([artist]) => artist);
+
+                const topCenturies = Object.entries(patterns.centuries)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([century]) => {
+                        const c = parseInt(century);
+                        const suffix = c % 10 === 1 && c !== 11 ? 'st' : c % 10 === 2 && c !== 12 ? 'nd' : c % 10 === 3 && c !== 13 ? 'rd' : 'th';
+                        return `${c}${suffix} century`;
+                    });
+
+                return {
+                    likedCount: liked.length,
+                    topArtists,
+                    periods: topCenturies,
+                    insights: this.generateInsights(liked, topArtists, topCenturies)
+                };
+            }
+
+            generateInsights(liked, topArtists, topPeriods) {
+                const insights = [];
+
+                if (topArtists.length > 0) {
+                    insights.push(`You're drawn to ${topArtists.join(', ')}—artists known for their distinctive visual languages.`);
+                }
+
+                if (topPeriods.length > 0) {
+                    insights.push(`Your taste clusters around the ${topPeriods[0]}${topPeriods.length > 1 ? ` and ${topPeriods[1]}` : ''}.`);
+                }
+
+                if (liked.length >= 10) {
+                    insights.push(`With ${liked.length} selections, you have a clear aesthetic vision.`);
+                }
+
+                if (liked.some(a => a.year && parseInt(a.year.match(/\d{4}/)[0]) < 1900)) {
+                    insights.push(`You appreciate historical works—pieces that have endured across generations.`);
+                }
+
+                return insights;
+            }
+
+            generateResearchSuggestions(patterns, liked) {
+                const suggestions = [];
+
+                const topCentury = Object.entries(patterns.centuries)
+                    .sort((a, b) => b[1] - a[1])[0];
+
+                if (topCentury) {
+                    const century = parseInt(topCentury[0]);
+                    
+                    if (century >= 19 && century <= 20) {
+                        suggestions.push({
+                            title: "Modernist Movements",
+                            description: "Explore early 20th-century movements like Cubism, Futurism, and Constructivism—the revolutionary artists who reimagined visual language.",
+                            popularArtists: ["Pablo Picasso", "Wassily Kandinsky", "Joan Miró", "Marcel Duchamp"],
+                            lesserKnownArtists: ["El Lissitzky", "Sophie Taeuber-Arp", "Oskar Schlemmer", "Egon Schiele"]
+                        });
+                        
+                        suggestions.push({
+                            title: "Surrealism",
+                            description: "Dive into the dreamlike, subconscious imagery of Surrealism—art that challenges rational perception.",
+                            popularArtists: ["Salvador Dalí", "René Magritte", "André Breton", "Joan Miró"],
+                            lesserKnownArtists: ["Max Ernst", "Leonora Carrington", "Gerhard Richter", "Yves Tanguy"]
+                        });
+                    }
+                    
+                    if (century >= 18 && century <= 19) {
+                        suggestions.push({
+                            title: "Impressionism & Post-Impressionism",
+                            description: "Discover how artists broke from academic tradition to capture light, color, and emotion in radical new ways.",
+                            popularArtists: ["Claude Monet", "Vincent van Gogh", "Paul Cézanne", "Pierre-Auguste Renoir"],
+                            lesserKnownArtists: ["Frédéric Bazille", "Berthe Morisot", "Eva Gonzalès", "Marie Bracquemond"]
+                        });
+                        
+                        suggestions.push({
+                            title: "Realism & Naturalism",
+                            description: "Explore artists who rejected romanticism to depict everyday life and social truths with unflinching honesty.",
+                            popularArtists: ["Gustave Courbet", "Édouard Manet", "Thomas Eakins", "Jean-François Millet"],
+                            lesserKnownArtists: ["Léon Bonnat", "Jules Breton", "Ilya Repin", "Harriet Backer"]
+                        });
+                    }
+
+                    if (century >= 17 && century <= 18) {
+                        suggestions.push({
+                            title: "Neoclassicism & Romanticism",
+                            description: "Study the tension between rational order and emotional expression in the art of revolution and transformation.",
+                            popularArtists: ["Jacques-Louis David", "Francisco Goya", "Caspar David Friedrich", "J.M.W. Turner"],
+                            lesserKnownArtists: ["Jean-Auguste-Dominique Ingres", "Henry Fuseli", "Philipp Otto Runge", "Washington Allston"]
+                        });
+                    }
+                }
+
+                const titleContent = liked.map(a => a.title?.toLowerCase() || '').join(' ');
+                
+                if (titleContent.includes('portrait')) {
+                    suggestions.push({
+                        title: "Portraiture Across Eras",
+                        description: "Study how different periods and artists approached depicting human identity, emotion, and power.",
+                        popularArtists: ["Rembrandt", "Diego Velázquez", "Elisabeth Vigée Le Brun", "Paul Klee"],
+                        lesserKnownArtists: ["Thomas Eakins", "Paula Modersohn-Becker", "Max Beckmann", "Oskar Kokoschka"]
+                    });
+                }
+
+                if (titleContent.includes('landscape') || titleContent.includes('nature')) {
+                    suggestions.push({
+                        title: "Landscape & Nature",
+                        description: "Explore how artists have interpreted the natural world—from literal representation to abstract interpretation.",
+                        popularArtists: ["J.M.W. Turner", "Caspar David Friedrich", "Paul Cézanne", "Claude Monet"],
+                        lesserKnownArtists: ["John Constable", "Anselm Kiefer", "Richard Serra", "Andy Goldsworthy"]
+                    });
+                }
+
+                if (titleContent.includes('abstract') || titleContent.includes('composition')) {
+                    suggestions.push({
+                        title: "Abstract & Non-Representational Art",
+                        description: "Investigate how artists moved beyond the visual world to explore pure form, color, and composition.",
+                        popularArtists: ["Wassily Kandinsky", "Piet Mondrian", "Mark Rothko", "Jackson Pollock"],
+                        lesserKnownArtists: ["Helen Frankenthaler", "Agnes Martin", "Yayoi Kusama", "Bridget Riley"]
+                    });
+                }
+
+                const seen = new Set();
+                return suggestions.filter(s => {
+                    if (seen.has(s.title)) return false;
+                    seen.add(s.title);
+                    return true;
+                }).slice(0, 4);
+            }
+
             completeQuiz() {
                 console.log('completeQuiz called, liked count:', this.likedArtworks.length);
                 
