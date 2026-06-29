@@ -511,39 +511,7 @@
                 this.renderResults();
             }
 
-            analyzePatterns(liked) {
-                const patterns = {
-                    artists: {},
-                    centuries: {},
-                    keywords: {}
-                };
 
-                liked.forEach(art => {
-                    if (art.artist) {
-                        patterns.artists[art.artist] = (patterns.artists[art.artist] || 0) + 1;
-                    }
-
-                    if (art.year) {
-                        const yearMatch = art.year.match(/(\d{4})/);
-                        if (yearMatch) {
-                            const year = parseInt(yearMatch[1]);
-                            const century = Math.floor(year / 100) * 100;
-                            patterns.centuries[century] = (patterns.centuries[century] || 0) + 1;
-                        }
-                    }
-
-                    if (art.title) {
-                        const words = art.title.toLowerCase().split(/[\s\-().,]/);
-                        words.forEach(word => {
-                            if (word.length > 3 && !['the', 'and', 'with', 'from'].includes(word)) {
-                                patterns.keywords[word] = (patterns.keywords[word] || 0) + 1;
-                            }
-                        });
-                    }
-                });
-
-                return patterns;
-            }
 
             generateRecommendations(patterns, liked) {
                 const likedIds = new Set(liked.map(a => a.id));
@@ -560,7 +528,7 @@
                             const yearMatch = art.year.match(/(\d{4})/);
                             if (yearMatch) {
                                 const year = parseInt(yearMatch[1]);
-                                const century = Math.floor(year / 100) * 100;
+                                const century = Math.floor(year / 100) + 1;
                                 if (patterns.centuries[century]) {
                                     score += 30;
                                 }
@@ -593,7 +561,11 @@
 
                 const topCenturies = Object.entries(patterns.centuries)
                     .sort((a, b) => b[1] - a[1])
-                    .map(([century]) => `${parseInt(century) + 1}th century`);
+                    .map(([century]) => {
+                        const c = parseInt(century);
+                        const suffix = c % 10 === 1 && c !== 11 ? 'st' : c % 10 === 2 && c !== 12 ? 'nd' : c % 10 === 3 && c !== 13 ? 'rd' : 'th';
+                        return `${c}${suffix} century`;
+                    });
 
                 return {
                     likedCount: liked.length,
@@ -634,7 +606,7 @@
                 if (topCentury) {
                     const century = parseInt(topCentury[0]);
                     
-                    if (century >= 1900 && century < 1950) {
+                    if (century >= 19 && century <= 20) {
                         suggestions.push({
                             title: "Modernist Movements",
                             description: "Explore early 20th-century movements like Cubism, Futurism, and Constructivism—the revolutionary artists who reimagined visual language.",
@@ -650,7 +622,7 @@
                         });
                     }
                     
-                    if (century >= 1800 && century < 1900) {
+                    if (century >= 18 && century <= 19) {
                         suggestions.push({
                             title: "Impressionism & Post-Impressionism",
                             description: "Discover how artists broke from academic tradition to capture light, color, and emotion in radical new ways.",
@@ -666,7 +638,7 @@
                         });
                     }
 
-                    if (century >= 1700 && century < 1800) {
+                    if (century >= 17 && century <= 18) {
                         suggestions.push({
                             title: "Neoclassicism & Romanticism",
                             description: "Study the tension between rational order and emotional expression in the art of revolution and transformation.",
