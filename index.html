@@ -812,6 +812,29 @@
                     `;
                 }
 
+                let yourSelectionsHtml = '';
+                if (this.likedArtworks.length > 0) {
+                    yourSelectionsHtml = `
+                        <div class="recommendations-section">
+                            <h2 class="section-title">Artworks You Loved</h2>
+                            <p style="font-size: 15px; color: #666; margin-bottom: 24px;">The ${this.likedArtworks.length} pieces that shaped your aesthetic profile</p>
+                            <div class="recommendation-grid">
+                                ${this.likedArtworks.map(art => `
+                                    <div class="recommendation-card">
+                                        <img src="${art.image}" alt="${art.title || 'Artwork'}" class="recommendation-image" />
+                                        ${art.title ? `
+                                            <div class="recommendation-info">
+                                                <p class="rec-title">${art.title}</p>
+                                                ${art.artist ? `<p class="rec-artist">${art.artist}</p>` : ''}
+                                            </div>
+                                        ` : ''}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+
                 let insightsHtml = '';
                 if (this.analysis && this.analysis.insights.length > 0) {
                     insightsHtml = `
@@ -852,6 +875,8 @@
                         ${researchHtml}
 
                         ${recommendationsHtml}
+
+                        ${yourSelectionsHtml}
 
                         <div class="restart-container">
                             <button class="btn-restart" onclick="window.app.restart()">Take Quiz Again</button>
