@@ -638,13 +638,15 @@
                         suggestions.push({
                             title: "Modernist Movements",
                             description: "Explore early 20th-century movements like Cubism, Futurism, and Constructivism—the revolutionary artists who reimagined visual language.",
-                            artists: ["Pablo Picasso", "Wassily Kandinsky", "Joan Miró", "El Lissitzky"]
+                            popularArtists: ["Pablo Picasso", "Wassily Kandinsky", "Joan Miró", "Marcel Duchamp"],
+                            lesserKnownArtists: ["El Lissitzky", "Sophie Taeuber-Arp", "Oskar Schlemmer", "Egon Schiele"]
                         });
                         
                         suggestions.push({
                             title: "Surrealism",
                             description: "Dive into the dreamlike, subconscious imagery of Surrealism—art that challenges rational perception.",
-                            artists: ["Salvador Dalí", "Max Ernst", "René Magritte", "André Breton"]
+                            popularArtists: ["Salvador Dalí", "René Magritte", "André Breton", "Joan Miró"],
+                            lesserKnownArtists: ["Max Ernst", "Leonora Carrington", "Gerhard Richter", "Yves Tanguy"]
                         });
                     }
                     
@@ -652,13 +654,15 @@
                         suggestions.push({
                             title: "Impressionism & Post-Impressionism",
                             description: "Discover how artists broke from academic tradition to capture light, color, and emotion in radical new ways.",
-                            artists: ["Claude Monet", "Vincent van Gogh", "Paul Cézanne", "Georges Seurat"]
+                            popularArtists: ["Claude Monet", "Vincent van Gogh", "Paul Cézanne", "Pierre-Auguste Renoir"],
+                            lesserKnownArtists: ["Frédéric Bazille", "Berthe Morisot", "Eva Gonzalès", "Marie Bracquemond"]
                         });
                         
                         suggestions.push({
                             title: "Realism & Naturalism",
                             description: "Explore artists who rejected romanticism to depict everyday life and social truths with unflinching honesty.",
-                            artists: ["Gustave Courbet", "Jean-François Millet", "Édouard Manet", "Thomas Eakins"]
+                            popularArtists: ["Gustave Courbet", "Édouard Manet", "Thomas Eakins", "Jean-François Millet"],
+                            lesserKnownArtists: ["Léon Bonnat", "Jules Breton", "Ilya Repin", "Harriet Backer"]
                         });
                     }
 
@@ -666,7 +670,8 @@
                         suggestions.push({
                             title: "Neoclassicism & Romanticism",
                             description: "Study the tension between rational order and emotional expression in the art of revolution and transformation.",
-                            artists: ["Jacques-Louis David", "Jean-Auguste-Dominique Ingres", "Caspar David Friedrich", "Francisco Goya"]
+                            popularArtists: ["Jacques-Louis David", "Francisco Goya", "Caspar David Friedrich", "J.M.W. Turner"],
+                            lesserKnownArtists: ["Jean-Auguste-Dominique Ingres", "Henry Fuseli", "Philipp Otto Runge", "Washington Allston"]
                         });
                     }
                 }
@@ -677,7 +682,8 @@
                     suggestions.push({
                         title: "Portraiture Across Eras",
                         description: "Study how different periods and artists approached depicting human identity, emotion, and power.",
-                        artists: ["Rembrandt", "Elisabeth Vigée Le Brun", "Francisco Goya", "Paul Klee"]
+                        popularArtists: ["Rembrandt", "Diego Velázquez", "Elisabeth Vigée Le Brun", "Paul Klee"],
+                        lesserKnownArtists: ["Thomas Eakins", "Paula Modersohn-Becker", "Max Beckmann", "Oskar Kokoschka"]
                     });
                 }
 
@@ -685,7 +691,8 @@
                     suggestions.push({
                         title: "Landscape & Nature",
                         description: "Explore how artists have interpreted the natural world—from literal representation to abstract interpretation.",
-                        artists: ["J.M.W. Turner", "Caspar David Friedrich", "Paul Cézanne", "Anselm Kiefer"]
+                        popularArtists: ["J.M.W. Turner", "Caspar David Friedrich", "Paul Cézanne", "Claude Monet"],
+                        lesserKnownArtists: ["John Constable", "Anselm Kiefer", "Richard Serra", "Andy Goldsworthy"]
                     });
                 }
 
@@ -693,7 +700,8 @@
                     suggestions.push({
                         title: "Abstract & Non-Representational Art",
                         description: "Investigate how artists moved beyond the visual world to explore pure form, color, and composition.",
-                        artists: ["Wassily Kandinsky", "Piet Mondrian", "Mark Rothko", "Helen Frankenthaler"]
+                        popularArtists: ["Wassily Kandinsky", "Piet Mondrian", "Mark Rothko", "Jackson Pollock"],
+                        lesserKnownArtists: ["Helen Frankenthaler", "Agnes Martin", "Yayoi Kusama", "Bridget Riley"]
                     });
                 }
 
@@ -760,9 +768,17 @@
                                         <h3 class="suggestion-title">${suggestion.title}</h3>
                                         <p class="suggestion-description">${suggestion.description}</p>
                                         <div class="artists-list">
-                                            <p class="artists-label">Key Artists:</p>
+                                            <p class="artists-label">Popular Artists:</p>
                                             <ul class="artists-ul">
-                                                ${suggestion.artists.map(artist => `
+                                                ${suggestion.popularArtists.map(artist => `
+                                                    <li class="artist-item">${artist}</li>
+                                                `).join('')}
+                                            </ul>
+                                        </div>
+                                        <div class="artists-list">
+                                            <p class="artists-label">Lesser Known Artists:</p>
+                                            <ul class="artists-ul">
+                                                ${suggestion.lesserKnownArtists.map(artist => `
                                                     <li class="artist-item">${artist}</li>
                                                 `).join('')}
                                             </ul>
